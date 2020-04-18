@@ -6,12 +6,12 @@
 (defparameter *elts* (append *ops* *numbers*))
 (defparameter *mutations* '(:num :num :tree :tree :tree :del :ins :ins))
 
-(defun make-tree (symbol depth)
+(defun make-t (symbol depth)
   (cond ((<= depth 0) (elt *numbers* (random *max-range*)))
         ((not (member symbol *ops*)) symbol)
         (t (let* ((slots (+ 2 (random *max-nodes*)))
                   (tree-level (loop :repeat slots :collect (elt *elts* (random (length *elts*))))))
-             (cons symbol (mapcar (lambda (x) (make-tree x (- depth 1))) tree-level))))))
+             (cons symbol (mapcar (lambda (x) (make-t x (- depth 1))) tree-level))))))
 
 (defun calc-depth (tree)
   (progn
@@ -42,21 +42,21 @@
                   (>= (random 1.0) 0.3)
                   (listp rnd-form))
              (go_ rnd-form (- depth 1)))
-            ((eq action :tree) (setf (elt form rnd-ind) (make-tree (elt *ops* (random (length *ops*))) 1)))
+            ((eq action :tree) (setf (elt form rnd-ind) (make-t (elt *ops* (random (length *ops*))) 1)))
             ((eq action :num)  (setf (elt form rnd-ind) (random *max-range*)))
             ((eq action :del)  (progn
                                  (setf (elt form rnd-ind) nil)
                                  (delete nil form)
                                  form))
-            ((eq action :ins)  (nconc (make-tree (elt *ops* (random (length *ops*))) (1- (random *max-depth*))) (list form)))
+            ((eq action :ins)  (nconc (make-t (elt *ops* (random (length *ops*))) (1- (random *max-depth*))) (list form)))
             (t (print "else"))))))
     (print tree)
     (go_ tree *d*)))
 
 ;; TODO: mutate, select, fitness, crossover
-;; mutate: select random node, swap children for (make-tree rand-symb (- *max-depth* calc-depth))
+;; mutate: select random node, swap children for (make-t rand-symb (- *max-depth* calc-depth))
 ;;      || delete subtrees, replace with number
-;;      || select random number, replace with new make-tree
+;;      || select random number, replace with new make-t
 ;; TODO: Random symbol for root of tree
 ;; TODO: refactor go_ into generic walk-tree?
 
